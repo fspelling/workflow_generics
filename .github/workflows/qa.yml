@@ -1,1 +1,53 @@
+name: QA
+run-name: Pipeline (QA) executaado pelo ${{ github.actor }}
 
+on:
+  workflow_call:
+
+jobs:
+  testes_unitarios:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Simulacao testes unitarios"
+        run: echo "Implementar testes unitarios"
+
+  testes_integrados:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Simulacao testes integrados"
+        run: echo "Implementar testes integrados"
+
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtendo arquivos do projeto
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+          
+      - name: Setup Java SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: '21'
+          
+      - name: Instalacao do sonar qube scanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Build e analise sonar
+        working-directory: ./src/BoardK8s
+        run: |
+          dotnet sonarscanner begin /k:"board-k8s" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet build Poc.BoardK8s.sln
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Verificacao quality gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        with:
+          scanMetadataReportFile: ./src/.sonarqube/out/.sonar/report-task.txt
