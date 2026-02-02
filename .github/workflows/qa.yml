@@ -59,4 +59,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
         with:
-          scanMetadataReportFile: ./src/.sonarqube/out/.sonar/report-task.txt
+          scanMetadataReportFile: ./src/BoardK8s/.sonarqube/out/.sonar/report-task.txt
