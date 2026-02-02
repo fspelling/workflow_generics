@@ -1,1 +1,46 @@
+name: Deploy
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        type: string
+        required: true
+        description: "Nome do ambiente que sera realizado o deploy"
+      environment_url:
+        type: string
+        description: "Nome do ambiente que sera realizado o deploy"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment_name }}
+      url: ${{ inputs.environment_url }}
+    steps:
+      - name: "Obtendo arquivos do projeto"
+        uses: actions/checkout@v4
+        
+      - name: "Configurando contexto/autenticacao do k8s"
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.K8S_CONFIG }}
 
+      - name: Atualizar host name
+        working-directory: ./src/ManifestsK8s/boards-k8s/deploy
+        run: |
+          sed -i "s|host: \[host-name\]|host: ${{ vars.K8S_BASE_URL }}|" ./deployment.yaml
+
+      - name: "Execução dos manifestos" 
+        uses: azure/k8s-deploy@v5
+        with:
+          namespace: ${{ inputs.environment_name }}
+          manifests: |
+            ./src/ManifestsK8s/boards-k8s/service-account/service-account.yaml
+            ./src/ManifestsK8s/boards-k8s/service-account/role.yaml
+            ./src/ManifestsK8s/boards-k8s/service-account/role-binding.yaml
+            ./src/ManifestsK8s/boards-k8s/deploy/configmap.yaml
+            ./src/ManifestsK8s/boards-k8s/deploy/deployment.yaml
+            ./src/ManifestsK8s/boards-k8s/deploy/service.yaml
+            ./src/ManifestsK8s/boards-k8s/deploy/ingress.yaml
+          images: |
+            fspelling/boardk8s:v${{ github.run_number }}
