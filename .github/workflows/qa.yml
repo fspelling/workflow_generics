@@ -3,6 +3,15 @@ run-name: Pipeline (QA) executaado pelo ${{ github.actor }}
 
 on:
   workflow_call:
+    inputs:
+      project_sonar: 
+        type: string
+        required: true
+        description: "Projeto do sonnar que sera analisado"
+      file_solution: 
+        type: string
+        required: true
+        description: "Arquivo da solution que sera realido o build do sonar"
 
 jobs:
   testes_unitarios:
@@ -40,8 +49,8 @@ jobs:
       - name: Build e analise sonar
         working-directory: ./src/BoardK8s
         run: |
-          dotnet sonarscanner begin /k:"board-k8s" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          dotnet build Poc.BoardK8s.sln
+          dotnet sonarscanner begin /k:"${{ inputs.project_sonar }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet build ${{ inputs.file_solution }}
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Verificacao quality gate
