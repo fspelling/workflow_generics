@@ -28,7 +28,7 @@ jobs:
       - name: Atualizar host name
         working-directory: ./src/ManifestsK8s/boards-k8s/deploy
         run: |
-          sed -i "s|host: \[host-name\]|host: ${{ vars.K8S_BASE_URL }}|" ./deployment.yaml
+          sed -i "s|host: \[host-name\]|host: ${{ inputs.environment_url }}|" ./deployment.yaml
 
       - name: "Execução dos manifestos" 
         uses: azure/k8s-deploy@v5
