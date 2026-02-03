@@ -6,15 +6,15 @@ on:
         type: string
         required: true
         description: "Nome do ambiente que sera realizado o deploy"
-      environment_url:
+      host_name:
         type: string
-        description: "Nome do ambiente que sera realizado o deploy"
+        description: "Host do ambiente que sera realizado o deploy"
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment_name }}
-      url: ${{ inputs.environment_url }}
+      url: http://${{ inputs.host_name }}
     steps:
       - name: "Obtendo arquivos do projeto"
         uses: actions/checkout@v4
@@ -28,7 +28,7 @@ jobs:
       - name: Atualizar host name
         working-directory: ./src/ManifestsK8s/boards-k8s/deploy
         run: |
-          sed -i "s|host: \[host-name\]|host: ${{ inputs.environment_url }}|" ./ingress.yaml
+          sed -i "s|host: \[host-name\]|host: ${{ inputs.host_name }}|" ./ingress.yaml
 
       - name: "Execução dos manifestos (default)" 
         uses: azure/k8s-deploy@v5
