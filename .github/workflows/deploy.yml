@@ -38,7 +38,7 @@ jobs:
             ./src/ManifestsK8s/boards-k8s/service-account/role.yaml
             ./src/ManifestsK8s/boards-k8s/service-account/role-binding.yaml
       
-      - name: "Execução dos manifestos (hml)" 
+      - name: "Execução dos manifestos (${{ inputs.environment_name }})" 
         uses: azure/k8s-deploy@v5
         with:
           namespace: ${{ inputs.environment_name }}
