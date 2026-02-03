@@ -30,14 +30,19 @@ jobs:
         run: |
           sed -i "s|host: \[host-name\]|host: ${{ inputs.environment_url }}|" ./ingress.yaml
 
-      - name: "Execução dos manifestos" 
+      - name: "Execução dos manifestos (default)" 
         uses: azure/k8s-deploy@v5
         with:
-          namespace: ${{ inputs.environment_name }}
           manifests: |
             ./src/ManifestsK8s/boards-k8s/service-account/service-account.yaml
             ./src/ManifestsK8s/boards-k8s/service-account/role.yaml
             ./src/ManifestsK8s/boards-k8s/service-account/role-binding.yaml
+      
+      - name: "Execução dos manifestos (hml)" 
+        uses: azure/k8s-deploy@v5
+        with:
+          namespace: ${{ inputs.environment_name }}
+          manifests: |
             ./src/ManifestsK8s/boards-k8s/deploy/configmap.yaml
             ./src/ManifestsK8s/boards-k8s/deploy/deployment.yaml
             ./src/ManifestsK8s/boards-k8s/deploy/service.yaml
