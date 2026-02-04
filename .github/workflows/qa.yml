@@ -8,7 +8,11 @@ on:
         type: string
         required: true
         description: "Projeto do sonnar que sera analisado"
-      file_full_solution: 
+      working_directory: 
+        type: string
+        required: true
+        description: "Diretorio de trabalho do sonar"
+      file_solution: 
         type: string
         required: true
         description: "Arquivo da solution que sera realido o build do sonar"
@@ -51,15 +55,16 @@ jobs:
         run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Build e analise sonar
+        working-directory: ${{ inputs.working_directory }}
         run: |
           dotnet sonarscanner begin /k:"${{ inputs.project_sonar }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.sonar_token }}"
-          dotnet build ${{ inputs.file_full_solution }}
+          dotnet build ${{ inputs.file_solution }}
           dotnet sonarscanner end /d:sonar.token="${{ secrets.sonar_token }}"
 
       - name: Verificacao quality gate
         uses: sonarsource/sonarqube-quality-gate-action@master
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.sonar_token }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
         with:
-          scanMetadataReportFile: ./src/BoardK8s/.sonarqube/out/.sonar/report-task.txt
+          scanMetadataReportFile: ${{ inputs.working_directory }}/.sonarqube/out/.sonar/report-task.txt
