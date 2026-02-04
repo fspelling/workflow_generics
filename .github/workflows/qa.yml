@@ -8,7 +8,7 @@ on:
         type: string
         required: true
         description: "Projeto do sonnar que sera analisado"
-      file_solution: 
+      file_full_solution: 
         type: string
         required: true
         description: "Arquivo da solution que sera realido o build do sonar"
@@ -51,10 +51,9 @@ jobs:
         run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Build e analise sonar
-        working-directory: ./src/BoardK8s
         run: |
           dotnet sonarscanner begin /k:"${{ inputs.project_sonar }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.sonar_token }}"
-          dotnet build ${{ inputs.file_solution }}
+          dotnet build ${{ inputs.file_full_solution }}
           dotnet sonarscanner end /d:sonar.token="${{ secrets.sonar_token }}"
 
       - name: Verificacao quality gate
