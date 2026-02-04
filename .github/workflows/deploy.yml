@@ -8,7 +8,6 @@ on:
         description: "Nome do ambiente que sera realizado o deploy"
       host_name:
         type: string
-        required: true
         description: "Host do ambiente que sera realizado o deploy"
       manifests:
         required: true
@@ -19,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment_name }}
-      url: http://${{ inputs.host_name }}
+      url: ${{ inputs.host_name && format('http://{0}', inputs.host_name) || '' }}
     steps:
       - name: "Obtendo arquivos do projeto"
         uses: actions/checkout@v4
@@ -32,6 +31,7 @@ jobs:
 
       - name: Atualizar host name
         working-directory: ./src/ManifestsK8s/boards-k8s/deploy
+        if: ${{ inputs.host_name }}
         run: |
           sed -i "s|host: \[host-name\]|host: ${{ inputs.host_name }}|" ./ingress.yaml
       
