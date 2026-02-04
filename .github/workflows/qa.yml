@@ -12,6 +12,10 @@ on:
         type: string
         required: true
         description: "Arquivo da solution que sera realido o build do sonar"
+    secrets:
+      sonar_token:
+        required: true
+        description: "token do sonar"
 
 jobs:
   testes_unitarios:
@@ -49,9 +53,9 @@ jobs:
       - name: Build e analise sonar
         working-directory: ./src/BoardK8s
         run: |
-          dotnet sonarscanner begin /k:"${{ inputs.project_sonar }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner begin /k:"${{ inputs.project_sonar }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}"  /d:sonar.token="${{ secrets.sonar_token }}"
           dotnet build ${{ inputs.file_solution }}
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.sonar_token }}"
 
       - name: Verificacao quality gate
         uses: sonarsource/sonarqube-quality-gate-action@master
